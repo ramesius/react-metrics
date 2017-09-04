@@ -16,7 +16,6 @@ function match(arg, factories, name, wrappedComponentName) {
     };
 }
 
-// TODO: Write documentation for withMetrics
 /**
  * Returns a function in which you can pass a component to provide metrics tracking functions.
  * @param {function|object} mapMetricsToProps 
