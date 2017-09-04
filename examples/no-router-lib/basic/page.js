@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-import {PropTypes as MetricsPropTypes} from "react-metrics"; // eslint-disable-line import/no-unresolved
+import {withMetrics} from "react-metrics";
 
 class Page extends React.Component {
     constructor(...args) {
@@ -10,21 +9,16 @@ class Page extends React.Component {
         this.onClick = this.onClick.bind(this);
     }
 
-    static contextTypes = {
-        metrics: MetricsPropTypes.metrics,
-        appState: PropTypes.any
-    };
-
     static propTypes = {
         params: PropTypes.object
     };
 
     onClick() {
-        this.context.metrics.user({
+        const {params, user, track} = this.props;
+        user({
             username: "exampleuser"
         });
-        const {params} = this.props;
-        this.context.metrics.track(
+        track(
             "trackClick",
             {page: params.id},
             true /* this will merge page default metrics */
@@ -49,4 +43,7 @@ class Page extends React.Component {
     }
 }
 
-export default Page;
+export default withMetrics(metrics => ({
+    user: metrics.user,
+    track: metrics.track
+}))(Page);

@@ -1,10 +1,8 @@
 import React from "react";
-import {PropTypes, exposeMetrics} from "react-metrics"; // eslint-disable-line import/no-unresolved
+import {exposeMetrics} from "react-metrics"; // eslint-disable-line import/no-unresolved
 
-@exposeMetrics class AsyncPageView extends React.Component {
-    static contextTypes = {
-        metrics: PropTypes.metrics
-    };
+@exposeMetrics 
+class AsyncPageView extends React.Component {
 
     static willTrackPageView(routeState) {
         return AsyncPageView._promise.then(result => {

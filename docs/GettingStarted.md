@@ -175,23 +175,22 @@ class PageComponent extends React.Component {
 }
 ```
 
-You can disable the automatic page view tracking and instead manually track page views by using `this.context.metrics.pageView()`
+You can disable the automatic page view tracking and instead manually track page views by using `withMetrics` and `this.props.pageView()`
 
 ```javascript
-import {exposeMetrics, PropTypes} from "react-metrics";
+import {exposeMetrics, withMetrics} from "react-metrics";
 
 @exposeMetrics
+@withMetrics()
 class PageComponent extends React.Component {
-    static contextTypes = {
-        metrics: PropTypes.metrics
-    }
+    
     static willTrackPageView() {
         // first, suppress the automatic call.
         return false;
     }
     componentDidMount() {
-        const {value1, value2} = this.props;
-        this.context.metrics.pageView({value1, value2});
+        const {value1, value2, pageView} = this.props;
+        pageView({value1, value2});
     }
     render () {
         ...
@@ -282,20 +281,18 @@ There are 2 ways to call `track` api from your component.
 
     If you set `{prefix}-merge-pagedefaults="true"` to the declarative tracking, the custom link tracking metrics will get merged with `pageDefaults` metrics.
 
-2. **Imperative** by calling the API explicitly. To do this, define `metrics` context as one of `contextTypes` in your child component. This allows you to call the `track` API. You can pass either an Object or a Promise as a second argument. It's your responsibility to implement the `track` API in your service, otherwise calling the API simply throws an error.
+2. **Imperative** by calling the API explicitly. To do this, use the `withMetrics` higher order component to provide your component with react-metrics' tracking functions as props. You can pass either an Object or a Promise as a second argument. It's your responsibility to implement the `track` API in your service, otherwise calling the API simply throws an error.
 
     Example:
 
     ```javascript
-    import {PropTypes} from "react-metrics";
+    import {withMetrics} from "react-metrics";
 
+    @withMetrics()
     class YourComponent extends React.Component {
-        static contextTypes = {
-            metrics: PropTypes.metrics
-        }
-
+        
         onSomethingUpdated(value) {
-            this.context.metrics.track("customEventName", {value});
+            this.props.track("customEventName", {value});
         }
 
         render() {
@@ -433,21 +430,19 @@ const YourApiObject = {
 Then you can call them from your component.
 
 ```javascript
-import {PropTypes} from "react-metrics";
+import {withMetrics} from "react-metrics";
 
+@withMetrics()
 class PageComponent extends React.Component {
-    static contextTypes = {
-        metrics: PropTypes.metrics
-    }
 
     onSetUser(user) {
-        this.context.metrics.setUser(user);
+        this.props.setUser(user);
     }
 
     onVideoPlaybackTimeChange(time) {
         if (...) {
             ...
-            this.context.metrics.videoMileStone({videoId, milestone, time});
+            this.props.videoMileStone({videoId, milestone, time});
         }
     }
 
@@ -455,6 +450,48 @@ class PageComponent extends React.Component {
         ...
     }
 }
+```
+
+## Composing tracking functions when using `withMetrics`
+
+When using `withMetrics` you can optional pass a function to map metrics tracking functions to props. This is borrowed from react-redux's `mapStateToProps` and `mapDispatchToProps` and hence is a very powerful function when composing functions to track metrics.
+
+trackingActions.js
+```javascript
+export function trackCheckoutClick(metrics) {
+    return data => {
+        return metrics.track('checkout_click', data);
+    };
+}
+
+export function trackPromotionClick(metrics) {
+    return (position, promotionId) => {
+        return metrics.track('promotion_click', {position, promotionId});
+    };
+}
+```
+
+MyPage.jsx
+```javascript
+import {withMetrics} from 'react-metrics';
+import {trackPromotionClick, trackCheckoutClick} from './trackingActions';
+
+class MyPage extends React.Component {
+    render() {
+        const {trackPromotionClick, trackCheckoutClick} = this.props;
+        return (
+            <div>
+                <TopPromotion onClick={() => trackPromotionClick('top', 1)}>
+                <CheckoutButton onClick={() => trackCheckoutClick({products: ['Hoodie']})}/>
+                <BottomPromotion onClick={() => trackPromotionClick('bottom', 1)}>
+            </div>
+        );
+    }
+}
+
+
+export default withMetrics({trackPromotionClick, trackCheckoutClick})(MyPage);
+
 ```
 
 ### How about using metrics outside of React Component?

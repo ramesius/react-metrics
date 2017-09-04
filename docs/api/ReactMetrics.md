@@ -299,3 +299,43 @@ Clicking `Item 1` in the list will send the following data to `react-metrics`:
     }
 }
 ```
+
+### <a id='withMetrics'></a>[`withMetrics`](#withMetrics)
+
+`withMetrics` provides similiar functionality to react-redux' `connect` function. It will take your component and an optional `mapMetricsToProps` function to pass down metrics tracking functions to your component as props.
+
+By default (`withMetrics()(Componenet)`) provides `Component` with all of react-metrics' tracking functions. (By default this is `pageView` and `track`).
+
+#### Usage
+
+Default usage, passing all metrics tracking functions to `Component`.
+
+```javascript
+export default withMetrics()(Component)
+```
+
+Using a function to selectively pass named tracking functions as props.
+
+```javascript
+function mapMetricsToProps(metrics) {
+    return () => {
+        trackClick: metrics.track
+    };
+}
+
+export default withMetrics(mapMetricsToProps)(Component);
+```
+
+Passing an object of tracking functions
+
+```javascript
+import {trackCheckoutClick} './tracking'
+
+function trackPromotionClick(metrics) {
+    return promotionId => {
+        return metrics.track('track_promotion_click', {promotionId});
+    };
+}
+
+export default withMetrics({trackCheckoutClick, trackPromotionClick})(Component);
+```

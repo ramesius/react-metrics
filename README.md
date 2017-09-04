@@ -168,6 +168,36 @@ class PaginationComponent extends React.Component {
 }
 ```
 
+c. Use `withMetrics` higher order component and map metrics API functions to a components props. This is also known as imperative tracking. Please see [Imperative vs Declarative](/docs/GettingStarted.md#declarative-vs-imperative-tracking) link tracking for a comparison.
+
+Please see [`withMetrics`](/docs/api/ReactMetrics.md#withMetrics) for more use cases
+
+```javascript
+import {withMetrics} from 'react-metrics';
+
+class CheckoutButton extends React.Component {
+    render() {
+        const {trackCheckout} = this.props;
+        return <button onClick={() => trackCheckout({id: 123})} >Checkout</button>;
+    }
+}
+
+function trackCheckout(metrics) {
+    return data => {
+        return metrics.track('checkout', data);
+    }
+}
+
+function mapMetricsToProps(metrics) {
+    return {
+        trackCheckout: trackCheckout(metrics);
+    };
+}
+
+export default withMetrics(mapMetricsToProps)(CheckoutButton);
+
+```
+
 ### 4. Analytics Vendor Implementations
 
 `react-metrics` does not automatically supply any vendor analytics. You need to integrate with an analytics vendor to actually track something for reporting.
@@ -226,29 +256,6 @@ class PageComponent extends React.Component {
         });
     }
     render () {
-        ...
-    }
-}
-```
-
-### Imperative Custom Event Tracking
-
-Use `this.context.metrics.track()` to trigger custom event tracking as an alternative to [declarative custom link tracking](/docs/GettingStarted.md#declarative-vs-imperative-tracking).
-Define `metrics` as a `contextType` in your component and trigger custom track events using `metrics.track()`.
-
-```javascript
-import {PropTypes} from "react-metrics";
-
-class YourComponent extends React.Component {
-    static contextTypes = {
-        metrics: PropTypes.metrics
-    }
-
-    onSomethingUpdated(value) {
-        this.context.metrics.track("customEventName", {value});
-    }
-
-    render() {
         ...
     }
 }

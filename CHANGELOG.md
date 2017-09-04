@@ -1,3 +1,18 @@
+<a name="3.0.0"></a>
+## [3.0.0](https://github.com/nfl/react-metrics/compare/v2.3.1...v3.0.0) (2017-09)
+
+### Features
+
+* Added a `withMetrics` higher order component to abstract the usage of react context.
+
+### Breaking change
+
+* Usage of metrics proptypes in context types is discouraged (see below). As a result, it is no longer exported as part of the public API of react-metrics.
+
+### Notice
+
+* As of this release, the usage of react context directly i.e `this.context.metrics.track()` has been depcrecated and hence has been removed from the documentation. Please prefer to use the `withMetrics` function provided in this release that abtracts the usage of context.
+
 <a name="2.3.2"></a>
 ## [2.3.2](https://github.com/nfl/react-metrics/compare/v2.3.1...v2.3.2) (2017-06-27)
 
